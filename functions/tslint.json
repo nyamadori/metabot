@@ -3,6 +3,8 @@
     // -- Strict errors --
     // These lint rules are likely always a good idea.
 
+    "semicolon": [true, "never"],
+
     // Force function overloads to be declared together. This ensures readers understand APIs.
     "adjacent-overload-signatures": true,
 
