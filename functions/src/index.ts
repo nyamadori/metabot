@@ -18,6 +18,13 @@ function buildMessageForCmdHelp(cmd, message) {
 
 export const slackCommand = functions.https.onRequest((request, response) => {
   const messageText = request.body.text
+  const token = request.body.token
+
+  if (token !== functions.config().slack.token) {
+    response.status(403).json({ text: 'Invalid token' })
+    return
+  }
+
   const args = toArgs(messageText)
 
   yargs
