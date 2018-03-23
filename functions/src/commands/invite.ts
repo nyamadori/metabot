@@ -1,8 +1,15 @@
 export const command = 'invite <bot>'
 export const desc = 'Invite a bot'
-export function handler(argv) {
-  argv._reply = {
+export const builder = {
+  bot: {
+    desc: 'bot name to invite',
+    type: 'string'
+  }
+}
+
+export async function execute({ args }) {
+  return {
     response_type: "in_channel",
-    text: `Invited ${argv.bot}`,
+    text: `Invited ${args.bot}`,
   }
 }

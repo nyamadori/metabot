@@ -20,26 +20,44 @@ export const slackCommand = functions.https.onRequest((request, response) => {
   const messageText = request.body.text
   const token = request.body.token
 
-  if (token !== functions.config().slack.token) {
-    response.status(403).json({ text: 'Invalid token' })
-    return
-  }
+  return new Promise((resolve, reject) => {
+    if (token !== functions.config().slack.token) {
+      reject({ status: 403, res: { text: 'Invalid token' } })
+      return
+    }
 
-  const args = toArgs(messageText)
+    const args = toArgs(messageText)
 
-  yargs
-    .strict()
-    .commandDir('commands')
-    .help()
-    .version()
-    .recommendCommands()
-    .showHelpOnFail(false)
-    .wrap(72)
-    .parse(args, (err, argv, output) => {
-      if (output) {
-        response.send(buildMessageForCmdHelp(messageText, output))
-      } else {
-        response.send(argv._reply)
-      }
+    yargs
+      .strict()
+      .commandDir('commands')
+      .help()
+      .version()
+      .recommendCommands()
+      .showHelpOnFail(false)
+      .wrap(72)
+      .parse(args, (err, parsedArgs, output) => {
+        console.log(parsedArgs)
+        const commandPath = parsedArgs._
+
+        if (err || output) {
+          response.send(buildMessageForCmdHelp(messageText, output))
+          resolve()
+          return
+        }
+
+        const { execute } = require(`./commands/${commandPath.join('/')}`)
+
+        execute({ message: request.body, args: parsedArgs, request })
+          .catch(reject)
+          .then(resolve)
+      })
+  })
+    .then((reply) => {
+      response.send(reply)
+    })
+    .catch((reason) => {
+      console.error(reason)
+      response.status(reason.status).json(reason.res)
     })
 })
