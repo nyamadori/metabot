@@ -26,6 +26,8 @@ export const slackCommand = functions.https.onRequest((request, response) => {
       return
     }
 
+    console.log(request.body)
+
     const args = toArgs(messageText)
 
     yargs
@@ -58,6 +60,6 @@ export const slackCommand = functions.https.onRequest((request, response) => {
     })
     .catch((reason) => {
       console.error(reason)
-      response.status(reason.status).json(reason.res)
+      response.status(reason.status || '500').json(reason.res)
     })
 })
