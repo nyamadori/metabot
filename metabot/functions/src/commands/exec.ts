@@ -1,8 +1,5 @@
 import * as functions from 'firebase-functions'
-import * as firebase from 'firebase-admin'
-
-firebase.initializeApp(functions.config().firebase)
-const firestore = firebase.firestore()
+import { firestore } from '../utils/firebase'
 
 export const command = 'exec <botId> [args..]'
 export const desc = 'Exec a bot'
