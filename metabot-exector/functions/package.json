@@ -11,6 +11,8 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "express": "^4.16.3",
+    "express-promise-router": "express-promise-router/express-promise-router#default-export",
     "firebase-admin": "~5.8.1",
     "firebase-functions": "^0.8.1"
   },
