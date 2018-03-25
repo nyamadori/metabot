@@ -1,5 +1,9 @@
 import * as functions from 'firebase-functions'
+import * as express from 'express'
+import { router } from './routes'
 
-export const helloWorld = functions.https.onRequest((request, response) => {
- response.send("Hello from Firebase!")
-})
+const app = express()
+
+app.use(router)
+
+export const api = functions.https.onRequest(app)
