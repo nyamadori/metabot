@@ -1,5 +1,6 @@
-import * as functions from 'firebase-functions'
-import { firestore } from '../utils/firebase'
+import { firestore, auth } from '../utils/firebase'
+import * as got from 'got'
+import { exector } from '../utils/config'
 
 export const command = 'exec <botId> [args..]'
 export const desc = 'Exec a bot'
@@ -35,10 +36,32 @@ export async function execute({ args, message }) {
     }
   }
 
-  console.log(brains.docs[0].data())
+  const brainId = brains.docs[0].id
+  const uid = `__brain_operator_${brainId}__`
 
-  return {
-    response_type: "in_channel",
-    text: `Exec`,
+  try {
+    await auth.getUser(uid)
+  } catch (error) {
+    if (error.code === 'auth/user-not-found') {
+      await auth.createUser({ uid: uid })
+    } else {
+      throw (error)
+    }
   }
+
+  const sessionToken = await auth.createCustomToken(uid)
+
+  const botResponse =
+    await got.post(
+      `${exector.api.endpoint}/api/requests`,
+      {
+        body: {
+          session: sessionToken,
+          brainId: brainId
+        },
+        json: true
+      }
+    )
+
+  return botResponse.body.message
 }
