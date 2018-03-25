@@ -1,7 +1,7 @@
 import Router from 'express-promise-router'
-import * as functions from 'firebase-functions'
 import * as yargs from 'yargs'
 import * as commands from '../../../commands'
+import { slack } from '../../../utils/config'
 
 function toArgs(str: string): string[] {
   return str.split(/\s+/)
@@ -26,7 +26,7 @@ router.post('/', (request, response) => {
   const token = request.body.token
 
   return new Promise((resolve, reject) => {
-    if (token !== functions.config().slack.token) {
+    if (token !== slack.token) {
       reject({ status: 403, res: { text: 'Invalid token' } })
       return
     }
