@@ -5,7 +5,8 @@ import { exector } from '../utils/config'
 export const command = 'exec <botId> [args..]'
 export const desc = 'Exec a bot'
 
-export async function execute({ args, message }) {
+export async function handler({ args, context }) {
+  const { message } = context
   const scopesSnapshot =
     await firestore
       .collection('scopes')

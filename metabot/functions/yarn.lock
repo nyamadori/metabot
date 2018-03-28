@@ -1727,6 +1727,13 @@ merge-descriptors@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/merge-descriptors/-/merge-descriptors-1.0.1.tgz#b00aaa556dd8b44568150ec9d1b953f3f90cbb61"
 
+metabot-bot@latest:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/metabot-bot/-/metabot-bot-0.0.1.tgz#4f642991b59e497b1344a6141183ba735e7bb556"
+  dependencies:
+    typescript "^2.7.2"
+    yargs "^11.0.0"
+
 methmeth@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/methmeth/-/methmeth-1.1.0.tgz#e80a26618e52f5c4222861bb748510bd10e29089"
@@ -2611,7 +2618,7 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-typescript@^2.5.3:
+typescript@^2.5.3, typescript@^2.7.2:
   version "2.7.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.7.2.tgz#2d615a1ef4aee4f574425cdff7026edf81919836"
 

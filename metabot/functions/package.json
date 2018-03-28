@@ -16,7 +16,7 @@
     "firebase-admin": "~5.8.1",
     "firebase-functions": "^0.8.1",
     "got": "^8.3.0",
-    "yargs": "^11.0.0"
+    "metabot-bot": "latest"
   },
   "devDependencies": {
     "@types/got": "^7.1.8",
