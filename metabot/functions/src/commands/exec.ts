@@ -1,68 +1,64 @@
-import { firestore, auth } from '../utils/firebase'
 import * as got from 'got'
-import { exector } from '../utils/config'
+import * as fs from 'fs'
+import * as os from 'os'
+import * as path from 'path'
 
-export const command = 'exec <botId> [args..]'
+import { BotExector } from 'metabot-bot'
+import { exector } from '../utils/config'
+import { firestore, auth } from '../utils/firebase'
+
+export const command = 'exec <botNickname> [botArgs..]'
 export const desc = 'Exec a bot'
 
 export async function handler({ args, context }) {
-  const { message } = context
-  const scopesSnapshot =
-    await firestore
-      .collection('scopes')
-      .where(`channels.${message.channel_id}`, '==', true)
-      .where(`users.${message.user_id}`, '==', true)
-      .limit(1)
-      .get()
+  const { botNickname, botArgs } = args
 
-  if (scopesSnapshot.size === 0) {
+  console.log('Find invited bots')
+  const invitedBot = await firestore.collection('invitedBots').where('nickname', '==', botNickname).limit(1).get()
+
+  if (invitedBot.empty) {
     return {
-      text: `Not found scope of: channel=${message.channel_name}, user=${message.user_name}`
+      text: `${botNickname} isn't invited in this channel`
     }
   }
 
-  const scopeId = scopesSnapshot.docs[0].id
+  const botPath = invitedBot.docs[0].get('botPath')
+  const bot = await firestore.collection('bots').where('repositoryPath', '==', botPath).limit(1).get()
 
-  const brains =
-    await firestore
-      .collection('brains')
-      .where('botId', '==', args.botId)
-      .where('scopeId', '==', scopeId)
-      .limit(1)
-      .get()
+  const sourceUrl = bot.docs[0].get('sourceUrl')
+  const savedSourcePath = await fetchSourceFile(sourceUrl)
 
-  if (brains.size === 0) {
-    return {
-      text: `Not found bot: ${args.botId}`
-    }
-  }
+  const botExector: BotExector = require(savedSourcePath).bot
+  const cmd = [args.botNickname, ...botArgs].join(' ')
 
-  const brainId = brains.docs[0].id
-  const uid = `__brain_operator_${brainId}__`
+  console.log('Executing bot with: ', cmd)
 
-  try {
-    await auth.getUser(uid)
-  } catch (error) {
-    if (error.code === 'auth/user-not-found') {
-      await auth.createUser({ uid: uid })
-    } else {
-      throw (error)
-    }
-  }
+  const replyMessage = await botExector.execute(cmd, { message: context.message })
 
-  const sessionToken = await auth.createCustomToken(uid)
+  return replyMessage
+}
 
-  const botResponse =
-    await got.post(
-      `${exector.api.endpoint}/api/requests`,
-      {
-        body: {
-          session: sessionToken,
-          brainId: brainId
-        },
-        json: true
+function createTempDir(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    fs.mkdtemp(path.join(os.tmpdir(), 'source'), (err, tmpDir) => {
+      if (err) {
+        reject(err)
+        return
       }
-    )
 
-  return botResponse.body.message
+      resolve(tmpDir)
+    })
+  })
+}
+
+function fetchSourceFile(url: string) {
+  return new Promise<string>(async (resolve, reject) => {
+    const tmpDir = await createTempDir()
+    const sourcePath = path.join(tmpDir, 'index.js')
+    got
+      .stream(url)
+      .pipe(fs.createWriteStream(sourcePath))
+      .on('finish', () => resolve(sourcePath))
+      .on('error', reject)
+  })
 }
