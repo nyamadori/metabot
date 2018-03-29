@@ -36,7 +36,7 @@ export async function handler({ args, context }) {
       sessionToken,
       bot: bot.data(),
       brainId: brain.id,
-      command: [args.botNickname, ...botArgs].join(' '),
+      command: [args.botNickname, ...botArgs],
       context: context
     },
     json: true
