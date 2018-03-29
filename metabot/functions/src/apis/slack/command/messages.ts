@@ -1,12 +1,10 @@
 import Router from 'express-promise-router'
 import * as metabot from 'metabot-bot'
 import { slack } from '../../../utils/config'
-import * as exec from '../../../commands/exec'
-import * as invite from '../../../commands/invite'
-import * as install from '../../../commands/install'
+import * as root from '../../../commands/root'
 
 const exector = metabot.defineBot({
-  commands: { exec, invite, install }
+  commands: { root }
 })
 
 export const router = Router()
@@ -21,9 +19,9 @@ router.post('/', (request, response) => {
       return
     }
 
-    console.log(request.body)
+    const cmd = `/meta ${request.body.text}`
 
-    exector.execute({ message: request.body })
+    exector.execute(cmd, { message: request.body })
       .then((reply) => {
         response.send(reply)
       })
