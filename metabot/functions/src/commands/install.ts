@@ -2,7 +2,7 @@ import { PositionalOptions } from "yargs"
 import * as functions from 'firebase-functions'
 import { api } from '../utils/config'
 import * as got from 'got'
-import { firestore } from '../utils/firebase'
+import { firestore, auth } from '../utils/firebase'
 
 export const command = 'install <repositoryPath>'
 export const desc = 'Install a bot from Git repository'
@@ -38,7 +38,10 @@ export async function handler({ args }) {
   }
 
   const manifestUrl = packageJsonUrlFromRepo(repositoryPath)
+
   const botRef = await firestore.collection('bots').add({ sourceUrl, repositoryPath, manifestUrl })
+  const operator = await auth.createUser({ uid: `__bot_${botRef.id}__` })
+  const brainRef = await firestore.collection('brains').add({ botId: botRef.id, operatorId: operator.uid, data: {} })
 
   return {
     response_type: "in_channel",
