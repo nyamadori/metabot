@@ -3,7 +3,7 @@ import * as got from 'got'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
-import { BotExector } from 'metabot-bot'
+import { Parser } from 'metabot-bot'
 
 import { firestore, auth } from '../utils/firebase'
 
@@ -25,14 +25,21 @@ router.post('/', async (req, res) => {
   let replyMessage
 
   try {
-    const brainRef = await firestore.doc(`/brains/${brainId}`).get
+    const brainSnapshot = await firestore.doc(`/brains/${brainId}`).get()
     const savedSourcePath = await fetchSourceFile(bot.sourceUrl)
-    const botExector: BotExector = require(savedSourcePath).bot
+    const parser: Parser = require(savedSourcePath).commandParser
 
     console.log('Executing bot with: ', command)
 
-    context['brainRef'] = brainRef
-    replyMessage = await botExector.execute(command, context)
+    const cmd = parser.parse(command)
+    const brain = brainSnapshot.data()
+    brain.data = brain.data || {}
+
+    const env = { brain: brain.data, message: context.message }
+
+    replyMessage = await cmd.execute(env)
+
+    await brainSnapshot.ref.set(brain)
   } catch (e) {
     if (e.code === 'permission-denied' || e.code === 'not-found') {
       return res.status(404).send({ error: 'Not found brain' })

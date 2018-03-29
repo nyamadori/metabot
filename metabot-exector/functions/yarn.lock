@@ -2186,10 +2186,12 @@ merge2@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.2.1.tgz#271d2516ff52d4af7f7b710b8bf3e16e183fef66"
 
-metabot-bot@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/metabot-bot/-/metabot-bot-0.0.9.tgz#e6b80dfd338185d5f10b0abb46a22045674b4472"
+metabot-bot@^0.0.15:
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/metabot-bot/-/metabot-bot-0.0.15.tgz#e30a3a6ed9688cdeba4fde6532ed6254f6566a00"
   dependencies:
+    firebase "^4.12.0"
+    reflect-metadata "^0.1.12"
     typescript "^2.7.2"
     yargs "^11.0.0"
 
@@ -2754,6 +2756,10 @@ readable-stream@~1.0.32:
     inherits "~2.0.1"
     isarray "0.0.1"
     string_decoder "~0.10.x"
+
+reflect-metadata@^0.1.12:
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.1.12.tgz#311bf0c6b63cd782f228a81abe146a2bfa9c56f2"
 
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"
