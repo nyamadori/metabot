@@ -23,17 +23,36 @@ export async function handler({ args, context }) {
   }
 
   const botPath = invitedBot.docs[0].get('botPath')
-  const bot = await firestore.collection('bots').where('repositoryPath', '==', botPath).limit(1).get()
+  const botSnapshot = await firestore.collection('bots').where('repositoryPath', '==', botPath).limit(1).get()
+  const bot = botSnapshot.docs[0]
 
-  const sourceUrl = bot.docs[0].get('sourceUrl')
-  const savedSourcePath = await fetchSourceFile(sourceUrl)
+  const brainsSnapshot = await firestore.collection('brains').where('botId', '==', bot.id).limit(1).get()
+  const brain = brainsSnapshot.docs[0]
+  const operatorId = brain.get('operatorId')
 
-  const botExector: BotExector = require(savedSourcePath).bot
-  const cmd = [args.botNickname, ...botArgs].join(' ')
+  const sessionToken = await auth.createCustomToken(operatorId)
+  const botResponse = await got.post(`${exector.api.endpoint}/api/requests`, {
+    body: {
+      sessionToken,
+      bot: bot.data(),
+      brainId: brain.id,
+      command: [args.botNickname, ...botArgs].join(' '),
+      context: context
+    },
+    json: true
+  })
 
-  console.log('Executing bot with: ', cmd)
+  const replyMessage = botResponse.body.message
 
-  const replyMessage = await botExector.execute(cmd, { message: context.message })
+  // const sourceUrl = bot.docs[0].get('sourceUrl')
+  // const savedSourcePath = await fetchSourceFile(sourceUrl)
+
+  // const botExector: BotExector = require(savedSourcePath).bot
+  // const cmd = [args.botNickname, ...botArgs].join(' ')
+
+  // console.log('Executing bot with: ', cmd)
+
+  // const replyMessage = await botExector.execute(cmd, { message: context.message })
 
   return replyMessage
 }

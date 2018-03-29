@@ -4,11 +4,11 @@ service cloud.firestore {
       allow read, write: if isAuthenticated()
 
       function isAuthenticated() {
-        return request.auth.uid == brainOperatorUid(resource.id)
+        return request.auth.uid == brainOperatorUid(resource.data.botId)
       }
 
       function brainOperatorUid(resourceId) {
-        return '__brain_operator_' + resourceId + '__'
+        return '__bot_' + resourceId + '__'
       }
     }
   }
