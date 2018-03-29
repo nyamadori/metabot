@@ -3,9 +3,10 @@ import * as metabot from 'metabot-bot'
 import { slack } from '../../../utils/config'
 import * as exec from '../../../commands/exec'
 import * as invite from '../../../commands/invite'
+import * as install from '../../../commands/install'
 
 const exector = metabot.defineBot({
-  commands: { exec, invite }
+  commands: { exec, invite, install }
 })
 
 export const router = Router()
